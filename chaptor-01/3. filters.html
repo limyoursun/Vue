@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://unpkg.com/vue"></script>
+  <link rel="stylesheet" type="text/css" href="assets/css/app.css"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <title>Color Shop</title>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>{{product.sitename}}</h1>
+    </header>
+    <main>
+      <div class="col product">
+        <div>
+          <img v-bind:src="product.image">
+        </div>
+        <div>
+          <h1 v-text="product.title"></h1>
+          <p v-html="product.description"></p> <!-- html 속성을 삽입 -->
+          <p class="price">{{ product.price|formatPrice}}</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+  var name = new Vue({
+    el:'#app',
+    data:{
+      product:{
+      sitename:'Design',
+      title:'#00ADA9 색상',
+      description:'채도와 명도가 낮은 편에 속하는 <em>민트 색상</em>', // v-html 사용하기 
+      price:100000,
+      image:'./assets/images/product_00ADA9.png'
+      }
+    },
+    filters:{
+      formatPrice:function(price){
+        if(!parseInt(price)){return "";}
+        if(price > 999){
+          var price = price.toLocaleString();
+          return "￦" + price;
+        }else{
+          return "￦" + price;
+        }
+      }
+    }
+  })
+  </script>
+</body>
+</html>

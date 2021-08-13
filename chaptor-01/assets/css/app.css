@@ -1,0 +1,26 @@
+/* add */
+header{padding:30px 20px;}
+header, .navbar-default{background-color:#474143 !important;color:#fff;}
+.row{margin-right:15px !important;margin-left:15px !important;}
+.btn-group-lg>.btn, .btn-lg{color:#000;}
+.navbar-right{float:right;}
+.flex_wrap{display:flex;}
+.f_sb{justify-content:space-between;}
+.product img{margin-right:30px;}
+
+/* common */
+header h1{margin-top:0;}
+.price{font-size:20px;}
+.boxes{margin-top:20px;}
+.verify{margin-top:20px;}
+.submit{float:right;margin-top:20px;}
+.pagecheckout{padding:20px 50px;}
+.description{font-size:150%;margin-top:50px;}
+.inventory-message{font-size:120%;font-weight:bold;margin-left:20px;}
+.product{margin-left:20px;margin-top:30px;max-height:300px;max-width:100%;}
+.figure{}
+.rating-active:before{content:"\2605";position:absolute;}
+.rating{display:inline;float:right;margin-left:10px;margin-top:10px;}
+.rating > span{display:inline-block;position:relative;width:1.1em;}
+
+@media (min-width: 1200px){.container{max-width:970px;}}

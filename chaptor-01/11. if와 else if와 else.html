@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <script src="https://unpkg.com/vue"></script>
+  <link rel="stylesheet" type="text/css" href="assets/css/app.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <title>Color Shop</title>
+</head>
+<!-- 
+  v-bind는 html 속성 바인딩에 주로 사용된다.
+  v-model은 입력과 폼 바인딩에 주로 사용된다. -->
+
+<body>
+  <div id="app">
+    <header>
+      <div class="flex_wrap f_sb">
+        <h1 class="nav navbar-default" style="display:inline-block;">{{product.sitename}}</h1>
+        <div class="nav navbar-nav cart">
+          <button type="button" class="btn btn-defalut btn-lg" v-on:click="showCheckout">
+            <span class="glyphicon glyphicon-shopping-cart">
+              {{cartItemCount}}
+            </span>
+            <span>체크아웃</span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="row product">
+        <div class="flex_wrap" v-if="showProduct">
+          <div>
+            <img v-bind:src="product.image">
+          </div>
+          <div>
+            <h1 v-text="product.title"></h1>
+            <p v-html="product.description"></p>
+            <p class="price">{{ product.price|formatPrice}}</p>
+            <div>
+              <button class="btn btn-primary btn-lg" v-on:click="addToCart" v-if="canAddToCart">색상표에 담기</button>
+              <button disabled class="btn btn-primary btn-lg" v-else>색상표에 담기</button>
+              <span class="inventory-message"
+              v-if="product.availableInventory - cartItemCount === 0">
+              품절 <!-- 품절이 더 먼저 떠야 하는 이유가 있는 것인가?-->
+              </span>
+              <span class="inventory-message"
+              v-else-if="product.availableInventory - cartItemCount < 5">
+              재고:{{product.availableInventory - cartItemCount}}
+              </span>
+              <span class="inventory-message"
+              v-else-if="product.availableInventory - cartItemCount >= 5">
+              지금 구입하세요!
+              </span>
+            </div>
+          </div>
+        </div>
+        <div v-else>
+          <h2>색상표 체크아웃</h2>
+          <div class="col-md-6">
+            <strong>이름</strong>
+            <input v-model.trim="order.firstName" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <strong>성</strong>
+            <input v-model.trim="order.lastName" class="form-control">
+          </div>
+          <div class="form-group">
+            <div class="col-md-12"><strong>주소:</strong></div>
+            <div class="col-md-12">
+              <input v-model.trim="order.address" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-12"><strong>도시:</strong></div>
+            <div class="col-md-12">
+              <input v-model.trim="order.city" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-2">
+              <strong>주:</strong>
+              <select v-model="order.state" class="form-control">
+                <option disabled value="">주</option>
+                <option v-for="(state, key) in states"
+                v-bind:value="state">{{key}}</option>
+                <!-- <option v-bind:value="states.AL">AL</option>
+                <option v-bind:value="states.AR">AR</option>
+                <option v-bind:value="states.CA">CA</option>
+                <option v-bind:value="states.NV">NV</option> -->
+              </select>
+            </div>
+          </div>
+
+          <!-- .number 수식어는 v-model 지시자 값을 숫자로 자동 타입 변환할 때 사용한다. 가장 앞의 0은 삭제하는 특징이 있다. -->
+          <div class="form-group">
+            <div class="col-md-6 col-md-offset-4">
+              <strong>우편번호:</strong>
+              <input v-model.number="order.zip" class="form-control" type="number">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6 boxes">
+              <input type="checkbox" id="gift" value="true" v-bind:true-value="order.sendGift"
+                v-bind:false-value="order.dontSendGift" v-model="order.gift">
+              <label for="gift">선물로 보내기</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6 boxes">
+              <input type="radio" id="home" v-bind:value="order.home" v-model="order.method">
+              <label for="home">자택</label>
+              <input type="radio" id="business" v-bind:value="order.business" v-model="order.method">
+              <label for="business">직장</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6">
+              <button type="submit" class="btn btn-primary btn-lg" v-on:click="submitForm">주문하기</button>
+            </div>
+          </div>
+          <div class="col-md-12 verify">
+            <pre>
+              이름:{{order.firstName}}
+              성:{{order.lastName}}
+              주소:{{order.address}}
+              도시:{{order.city}}
+              우편번호:{{order.zip}}
+              주:{{order.state}}
+              주소지:{{order.method}}
+              선물:{{order.gift}}
+            </pre>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    var name = new Vue({
+      el: '#app',
+      data: {
+        showProduct: true,
+        states: {
+          AL: '알라바마',
+          AR: '애리조나',
+          CA: '캘리포니아',
+          NV: '네바다'
+        },
+        order: {
+          firstName: '',
+          lastName: '',
+          address: '',
+          city: '',
+          zip: '',
+          state: '',
+          method: '자택 주소',
+          home: '자택 주소',
+          business: '직장 주소',
+          gift: 'false',
+          sendGift: '선물로 보내기',
+          dontSendGift: '선물로 보내지 않기'
+        },
+        product: {
+          sitename: 'Design',
+          title: '#00ADA9 색상',
+          description: '채도가 낮은 편에 속하는 <em>민트 색상</em>',
+          price: 100000,
+          image: './assets/images/product_00ADA9.png',
+          availableInventory: 10
+        },
+        cart: []
+      },
+      // methods 는 값의 캐싱없이 화면 렌더링이 일어날 때마다 의도하지 않는 함수 호출이 발생할 수 있다.
+      // computed 속성으로 헤비한 로직이나 값을 캐싱하여 재사용이 필요하다면 적절히 구현하는 것이 좋을 것 같다!
+      methods: {
+        addToCart: function () {
+          this.cart.push(this.product.id);
+        },
+        showCheckout() {
+          this.showProduct = this.showProduct ? false : true;
+        },
+        submitForm() {
+          alert('제출완료');
+        }
+      },
+      computed: {
+        cartItemCount: function () {
+          return this.cart.length || '';
+        },
+        canAddToCart: function () {
+          return this.product.availableInventory > this.cartItemCount;
+        }
+      },
+      filters: {
+        formatPrice: function (price) {
+          if (!parseInt(price)) { return ""; }
+          if (price > 999) {
+            var price = price.toLocaleString();
+            return "￦" + price;
+          } else {
+            return "￦" + price;
+          }
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
